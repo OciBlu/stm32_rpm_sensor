@@ -22,6 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stm32f1xx_it.h"
+#include "stdio.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,7 +47,10 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
+//__uint16_t RPM_Value=rpm; //veriabel untuk simpan nilai ADC
+char msg[20];
+__uint8_t TEXT_rpm[] = "RPM: ";
+__uint8_t TEXT_enter[] = "\r\n";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,7 +64,7 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint32_t counter = 0;
+__uint32_t counter = 0;
 int speed = 0; // Tick per second
 int rpm = 0; // Revolutions Per Minute
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
@@ -110,9 +115,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    
-    //sprintf(msg, "RPM: %hu \r\n", counter);
+    HAL_UART_Transmit(&huart1, TEXT_rpm, strlen(TEXT_rpm), HAL_MAX_DELAY);
     HAL_UART_Transmit(&huart1, rpm, strlen(rpm), HAL_MAX_DELAY);
+    HAL_UART_Transmit(&huart1, TEXT_enter, strlen(TEXT_enter), HAL_MAX_DELAY);
     HAL_Delay(1000);
   }
   /* USER CODE END 3 */
