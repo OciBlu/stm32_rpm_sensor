@@ -64,12 +64,13 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-__uint32_t counter = 0;
-int speed = 0; // Tick per second
+unsigned long millisbefore = 0;
+volatile int holes = 0; 
 int rpm = 0; // Revolutions Per Minute
+int millis =0;
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-  counter++;
+  holes++;
 }
 /* USER CODE END 0 */
 
@@ -115,9 +116,16 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    HAL_UART_Transmit(&huart1, TEXT_rpm, strlen(TEXT_rpm), HAL_MAX_DELAY);
-    HAL_UART_Transmit(&huart1, rpm, strlen(rpm), HAL_MAX_DELAY);
-    HAL_UART_Transmit(&huart1, TEXT_enter, strlen(TEXT_enter), HAL_MAX_DELAY);
+    millis = HAL_GetTick(&htim2);
+    if(millis - millisbefore > 1000){
+      rpm = (holes/1)*60;
+      holes = 0;
+      millisbefore = millis;
+    }
+
+    
+    HAL_UART_Transmit(&huart1, (__uint32_t*)rpm, strlen(rpm), HAL_MAX_DELAY);
+ 
     HAL_Delay(1000);
   }
   /* USER CODE END 3 */
