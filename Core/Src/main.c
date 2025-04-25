@@ -60,11 +60,11 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint32_t counter = 0;
-uint32_t data[] = counter;
-
+int speed = 0; // Tick per second
+int rpm = 0; // Revolutions Per Minute
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-  counter = __HAL_TIM_GET_COUNTER(htim)
+  counter++;
 }
 /* USER CODE END 0 */
 
@@ -112,7 +112,8 @@ int main(void)
     /* USER CODE BEGIN 3 */
     
     //sprintf(msg, "RPM: %hu \r\n", counter);
-    HAL_UART_Transmit(&huart1, data, strlen(data), HAL_MAX_DELAY);
+    HAL_UART_Transmit(&huart1, rpm, strlen(rpm), HAL_MAX_DELAY);
+    HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
