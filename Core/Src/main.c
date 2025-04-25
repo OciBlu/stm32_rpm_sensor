@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stm32f1xx_it.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,7 +59,13 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint32_t counter = 0;
+uint32_t data[] = counter;
 
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+  counter = __HAL_TIM_GET_COUNTER(htim)
+}
 /* USER CODE END 0 */
 
 /**
@@ -94,7 +100,7 @@ int main(void)
   MX_TIM2_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_1 );
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -104,6 +110,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    
+    //sprintf(msg, "RPM: %hu \r\n", counter);
+    HAL_UART_Transmit(&huart1, data, strlen(data), HAL_MAX_DELAY);
   }
   /* USER CODE END 3 */
 }
