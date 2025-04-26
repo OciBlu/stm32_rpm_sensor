@@ -51,7 +51,11 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+extern uint32_t counter;
+extern int speed;
+extern int rpm;
+int count = 0;
+uint32_t oldcounter = 0;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -183,11 +187,18 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-  
+  count++;
+  if (count == 1000)
+  {
+    speed = counter - oldcounter; // Tick per second
+    rpm = speed * 60; // Revolutions Per Minute
+    oldcounter = counter;
+    count = 0;
+  }
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-
+  
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -204,7 +215,7 @@ void SysTick_Handler(void)
 void TIM2_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM2_IRQn 0 */
-
+ 
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */

@@ -47,8 +47,6 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-//__uint16_t RPM_Value=rpm; //veriabel untuk simpan nilai ADC
-char msg[20];
 __uint8_t TEXT_rpm[] = "RPM: ";
 __uint8_t TEXT_enter[] = "\r\n";
 /* USER CODE END PV */
@@ -64,13 +62,12 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-unsigned long millisbefore = 0;
-volatile int holes = 0; 
-int rpm = 0; // Revolutions Per Minute
-int millis =0;
+extern uint32_t counter = 0;
+extern int speed = 0; // Tick per second
+extern int rpm = 0; // Revolutions Per Minute
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-  holes++;
+  counter++;
 }
 /* USER CODE END 0 */
 
@@ -116,17 +113,10 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    millis = HAL_GetTick(&htim2);
-    if(millis - millisbefore > 1000){
-      rpm = (holes/1)*60;
-      holes = 0;
-      millisbefore = millis;
-    }
-
-    
-    HAL_UART_Transmit(&huart1, (__uint32_t*)rpm, strlen(rpm), HAL_MAX_DELAY);
- 
-    HAL_Delay(1000);
+    //HAL_UART_Transmit(&huart1, TEXT_rpm, strlen(TEXT_rpm), HAL_MAX_DELAY);
+    HAL_UART_Transmit(&huart1, rpm, strlen(rpm), HAL_MAX_DELAY);
+    HAL_UART_Transmit(&huart1, TEXT_enter, strlen(TEXT_enter), HAL_MAX_DELAY);
+    HAL_Delay(250);
   }
   /* USER CODE END 3 */
 }
