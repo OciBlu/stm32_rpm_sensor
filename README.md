@@ -14,3 +14,6 @@ Programming MCU STM32 RPM Sensor
 - Paste file yang dicopy ke "Drivers/CMSIS/Device/ST/STM32F1xx/Include"
 - Test compile program dengan make
 - Pastikan tidak ada error
+
+## Referensi Link
+[**STM32 Blue Pill Timer Input Capture Mode with Frequency Measurement Example**](https://microcontrollerslab.com/stm32-blue-pill-timer-input-capture-mode-frequency-measurement/)
