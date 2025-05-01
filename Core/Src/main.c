@@ -24,6 +24,21 @@
 #include "stm32f1xx_it.h"
 #include "stdio.h"
 #include "string.h"
+
+
+#define IDLE   0
+#define DONE   1
+#define F_CLK  72000000UL
+
+volatile uint8_t state = IDLE;
+volatile uint8_t message[35] = {'\0'};
+volatile uint8_t message2[35] = {'\0'};
+volatile uint32_t T1 = 0;
+volatile uint32_t T2 = 0;
+volatile uint32_t ticks = 0;
+volatile uint16_t TIM2_OVC = 0;
+volatile uint32_t frequency = 0;
+volatile uint32_t rpm = 0;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,8 +62,7 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-__uint8_t TEXT_rpm[] = "RPM: ";
-__uint8_t TEXT_enter[] = "\r\n";
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,13 +76,7 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-extern uint32_t counter = 0;
-extern int speed = 0; // Tick per second
-extern int rpm = 0; // Revolutions Per Minute
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
-{
-  counter++;
-}
+
 /* USER CODE END 0 */
 
 /**
@@ -103,7 +111,8 @@ int main(void)
   MX_TIM2_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_Encoder_Start_IT(&htim2, TIM_CHANNEL_1 );
+  HAL_TIM_Base_Start_IT(&htim2);
+  HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -113,12 +122,44 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    //HAL_UART_Transmit(&huart1, TEXT_rpm, strlen(TEXT_rpm), HAL_MAX_DELAY);
-    HAL_UART_Transmit(&huart1, rpm, strlen(rpm), HAL_MAX_DELAY);
-    HAL_UART_Transmit(&huart1, TEXT_enter, strlen(TEXT_enter), HAL_MAX_DELAY);
-    HAL_Delay(250);
+    sprintf(message2, "RPM = %lu \n\r", rpm);
+    HAL_UART_Transmit(&huart1, message2, sizeof(message2), 100);
+    HAL_Delay(1000);
   }
   /* USER CODE END 3 */
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef* htim)
+{
+    if(state == IDLE)
+    {
+        T1 = TIM2->CCR1;
+        TIM2_OVC = 0;
+        state = DONE;
+    }
+    else if(state == DONE)
+    {
+        T2 = TIM2->CCR1;
+        ticks = (T2 + (TIM2_OVC * 65536)) - T1;
+        frequency = (uint32_t)(F_CLK/ticks);
+        rpm = (frequency * 60 * 2)/1; //RPM = (FRQ * 60 * 2) /POLE
+        if(frequency != 0)
+        {
+           /*
+          sprintf(message, "Frequency = %lu Hz\n\r", frequency);
+          HAL_UART_Transmit(&huart1, message, sizeof(message), 100);
+         
+          sprintf(message2, "RPM = %lu \n\r", rpm);
+          HAL_UART_Transmit(&huart1, message2, sizeof(message2), 100);
+          */
+        }
+        state = IDLE;
+    }
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+{
+    TIM2_OVC++;
 }
 
 /**
