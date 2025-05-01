@@ -142,7 +142,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef* htim)
         T2 = TIM2->CCR1;
         ticks = (T2 + (TIM2_OVC * 65536)) - T1;
         frequency = (uint32_t)(F_CLK/ticks);
-        rpm = (frequency * 60 * 2)/1; //RPM = (FRQ * 60 * 2) /POLE
+        rpm = (frequency * 60 * 2)/1; //RPM = (FRQ * 60 * 2)/POLE
         if(frequency != 0)
         {
            /*
